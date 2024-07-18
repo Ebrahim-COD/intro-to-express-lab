@@ -17,14 +17,12 @@ app.get('/greetings/:username' , (req, res) => {
 })
 
 // 2. Rolling the Dice
-// Task: Set up a route to handle URLs following the 
-// pattern /roll/<number-parameter>.
+// Task: Set up a route to handle URLs following the pattern /roll/<number-parameter>.
 
 // Examples: Matches routes like /roll/6 or /roll/20.
 
 // Validation: If the parameter is not a number, 
-// respond with "You must specify a number." For instance, /roll/potato 
-// should trigger this response.
+// respond with "You must specify a number." For instance, /roll/potato should trigger this response.
 
 // Functionality: If a valid number is provided, 
 // respond with a random whole number between 0 and the given number. 
@@ -32,11 +30,14 @@ app.get('/greetings/:username' , (req, res) => {
 
 app.get('/roll/:number', (req, res) => {
 
+    const roll = req.params.number    
+    const random = Math.floor(Math.random() *(Number(roll)+1));
 
-    if (isNaN(req.params.number)) {
+
+    if (isNaN(random)) {
         res.send(`You must specify a number!`)
     } else {
-        res.send(`You roll a ${req.params.number}.`)
+        res.send(`You roll a ${random}.`)
     }
 })
 
@@ -94,22 +95,40 @@ app.get('/shoes', (req, res) => {
     const maxprice = req.query.maxprice
     const type = req.query.type
 
-    const mininum = shoes.filter(shoe => shoe.price > minprice)
-    const maximum = shoes.filter(shoe => shoe.price < maxprice)
-    const shoestype = shoes.filter(types => types.type === type)
+    let filteredShoes = shoes;
 
-    if(minprice) {
-        res.send(mininum)
+    if (minprice && maxprice && type) {
+        filteredShoes = shoes.filter(shoe =>
+            shoe.price >= minprice &&
+            shoe.price <= maxprice &&
+            shoe.type === type
+        );
+    } else if (minprice && maxprice) {
+        filteredShoes = shoes.filter(shoe =>
+            shoe.price >= minprice &&
+            shoe.price <= maxprice
+        );
+    } else if (minprice) {
+        filteredShoes = shoes.filter(shoe =>
+            shoe.price >= minprice
+        );
     } else if (maxprice) {
-        res.send(maximum)
-    } else if(type){
-        res.send(shoestype)
-    }  else {
-        res.send(shoes)
+        filteredShoes = shoes.filter(shoe =>
+            shoe.price <= maxprice
+        );
+    } else if (type) {
+        filteredShoes = shoes.filter(shoe =>
+            shoe.type === type
+        );
     }
-})
+
+    res.send(filteredShoes);
+});
+
+// http://localhost:4000/shoes?minprice=450&maxprice=550&type=sneaker
 
 
-app.listen(3000, () => {
+
+app.listen(4000, () => {
     console.log('Listening on port 3000')
 })
